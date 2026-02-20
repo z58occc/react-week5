@@ -19,7 +19,6 @@ export default function ProductDetails() {
       data: item,
     });
     alert("已成功加入")
-    console.log(res);
   }
 
   useEffect(() => {

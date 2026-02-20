@@ -1,19 +1,28 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import "../stylesheet/cart.scss";
+import { useNavigate } from "react-router";
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState([]);
   const api = import.meta.env.VITE_APP_API_BASE;
   const path = import.meta.env.VITE_APP_API_PATH;
+  const navigate=useNavigate();
+  async function getCart() {
+    const res = await axios.get(`${api}/v2/api/${path}/cart`);
+    console.log(res);
+    setCartItems(res.data.data);
+  }
   useEffect(() => {
-    async function getCart() {
-      const res = await axios.get(`${api}/v2/api/${path}/cart`);
-      console.log(res);
-      setCartItems(res.data.data);
-    }
     getCart();
   }, []);
+  async function handleDeleteItem(id) {
+    const res = axios.delete(`${api}/v2/api/${path}/cart/${id}`);
+    getCart();
+  }
+  function handleOrder() {
+    navigate("/order");
+  }
   return (
     <>
       <div className="container">
@@ -43,7 +52,12 @@ export default function Cart() {
                       <div className="price">NT${item.total}</div>
                     </div>
 
-                    <div className="remove">移除</div>
+                    <div
+                      className="remove"
+                      onClick={() => handleDeleteItem(item.id)}
+                    >
+                      移除
+                    </div>
                   </div>
                 </div>
               );
@@ -69,7 +83,9 @@ export default function Cart() {
               <span>NT${cartItems.total}</span>
             </div>
 
-            <button className="checkout">前往結帳</button>
+            <button className="checkout" onClick={handleOrder}>
+              前往結帳
+            </button>
           </div>
         </div>
       </div>

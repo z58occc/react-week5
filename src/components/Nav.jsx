@@ -14,6 +14,10 @@ export default function Nav() {
       name: "購物車頁",
       link: "/cart",
     },
+    {
+      name: "登入",
+      link: "/login",
+    },
   ];
   return (
     <div className="d-flex justify-content-center">
