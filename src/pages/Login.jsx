@@ -1,8 +1,10 @@
 import axios from "axios";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 
 export default function Login() {
   const api = import.meta.env.VITE_APP_API_BASE;
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -10,10 +12,9 @@ export default function Login() {
   } = useForm();
   async function onSubmit(data) {
     try {
-      console.log(data);
       const res = await axios.post(`${api}/v2/admin/signin`, data);
-      window.location.href =
-        "https://z58occc.github.io/react-week2/#/productList";
+      console.log(res);
+      navigate("/productList");
     } catch (error) {
       console.log(error);
     }
