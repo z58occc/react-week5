@@ -4,8 +4,10 @@ import { useParams } from "react-router";
 import "../stylesheet/productDetail.scss";
 import { useDispatch } from "react-redux";
 import { showToast } from "../slice/messageSlice";
+import { useNavigate } from "react-router";
 
 export default function ProductDetails() {
+  const navigate = useNavigate();
   const api = import.meta.env.VITE_APP_API_BASE;
   const path = import.meta.env.VITE_APP_API_PATH;
   const param = useParams();
@@ -87,7 +89,15 @@ export default function ProductDetails() {
               <button onClick={addCart} className="add-cart">
                 加入購物車
               </button>
-              <button className="buy-now">立即購買</button>
+              <button
+                className="buy-now"
+                onClick={() => {
+                  addCart();
+                  navigate("/order");
+                }}
+              >
+                立即購買
+              </button>
             </div>
           </div>
         </div>

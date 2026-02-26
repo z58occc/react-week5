@@ -36,7 +36,7 @@ export default function Products() {
                   }}
                 />
                 <div className="card-body">
-                  <Link to={product.id} className="card-title">
+                  <Link to={product.id} className="card-title text-decoration-none">
                     {product.title}
                   </Link>
                 </div>

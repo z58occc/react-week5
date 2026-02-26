@@ -14,6 +14,7 @@ export default function Cart() {
   const navigate = useNavigate();
   async function getCart() {
     const res = await axios.get(`${api}/v2/api/${path}/cart`);
+    console.log(res);
     setCartItems(res.data.data);
   }
   useEffect(() => {
@@ -32,6 +33,32 @@ export default function Cart() {
   function handleOrder() {
     navigate("/order");
   }
+
+  async function handleItemNum(qty, id, state) {
+    try {
+      console.log(cartItems);
+      if (state === "plus") {
+        const res = await axios.put(`${api}/v2/api/${path}/cart/${id}`, {
+          data: {
+            product_id: id,
+            qty: qty + 1,
+          },
+        });
+      } else {
+        if(Number(qty)<=1) return;
+        const res = await axios.put(`${api}/v2/api/${path}/cart/${id}`, {
+          data: {
+            product_id: id,
+            qty: qty - 1,
+          },
+        });
+      }
+      getCart();
+    } catch (error) {
+      alert(error);
+    }
+  }
+
   return (
     <>
       {!cartItems ? (
@@ -65,9 +92,22 @@ export default function Cart() {
 
                           <div className="item-meta">
                             <div className="qty">
-                              <button>-</button>
+                              <button
+                                disabled={item.qty <= 1}
+                                onClick={() =>
+                                  handleItemNum(item.qty, item.id, "minus")
+                                }
+                              >
+                                -
+                              </button>
                               <span>{item.qty}</span>
-                              <button>+</button>
+                              <button
+                                onClick={() =>
+                                  handleItemNum(item.qty, item.id, "plus")
+                                }
+                              >
+                                +
+                              </button>
                             </div>
 
                             <div className="price">NT${item.total}</div>
