@@ -6,9 +6,11 @@ import { Modal } from "bootstrap";
 import Swal from "sweetalert2";
 import Pagination from "../components/Pagination";
 import "../stylesheet/productList.scss";
-
+import { useDispatch } from "react-redux";
+import { showToast } from "../slice/messageSlice";
 
 export default function ProductList() {
+  const dispatch = useDispatch();
   const [pagination, setPagination] = useState({});
   const [isBlur, setIsBlur] = useState(true);
   const myModal = useRef(null);
@@ -30,19 +32,14 @@ export default function ProductList() {
   const path = import.meta.env.VITE_APP_API_PATH;
   const navigate = useNavigate();
 
-  async function getProducts(page = 2) {
+  async function getProducts(page = 1) {
     const res = await axios.get(
-      `${api}/v2/api/${path}/admin/products?page=${page}`
+      `${api}/v2/api/${path}/admin/products?page=${page}`,
     );
-    console.log(res.data);
     setProducts(res.data.products);
     setPagination(res.data.pagination);
   }
 
-  async function renderProducts() {
-    const res = await getProducts();
-    setProducts(res);
-  }
   async function userCheck(token) {
     try {
       const res = await axios.post(
@@ -73,16 +70,16 @@ export default function ProductList() {
             `${api}/v2/api/${path}/admin/product/${id}`,
           );
           getProducts();
-          renderProducts();
-          Swal.fire({
-            title: "Deleted!",
-            text: "Your file has been deleted.",
-            icon: "success",
-          });
+          dispatch(
+            showToast({
+              message: "你已成功刪除",
+              bg: "danger",
+            }),
+          );
         }
       });
     } catch (error) {
-      console.log(error);
+      alert(error);
     }
   }
 
@@ -117,8 +114,23 @@ export default function ProductList() {
     getProducts("1");
   }, []);
 
+  async function handelLogout() {
+    try {
+      const res = await axios.post(`${api}/v2/logout`);
+      dispatch(
+        showToast({
+          message: "已成功登出",
+          bg: "info",
+        }),
+      );
+      navigate("/products");
+    } catch (error) {
+      alert(error);
+    }
+  }
+
   return (
-    <div className="container">
+    <div >
       <div className="row mt-5">
         <div
           className="col-6"
@@ -126,7 +138,16 @@ export default function ProductList() {
             filter: isBlur ? "blur(1.5rem)" : "",
           }}
         >
-          <h2>產品列表</h2>
+          <div className="d-flex justify-content-between">
+            <h2>產品列表</h2>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handelLogout}
+            >
+              登出
+            </button>
+          </div>
           <table className="table">
             <thead>
               <tr>
@@ -145,7 +166,12 @@ export default function ProductList() {
                     <td>{item.title}</td>
                     <td>{item.origin_price}</td>
                     <td>{item.price}</td>
-                    <td>{item.is_enabled ? "啟用" : "未啟用"}</td>
+                    {item.is_enabled ? (
+                      <td className="text-success">啟用</td>
+                    ) : (
+                      <td className="text-danger">未啟用</td>
+                    )}
+                    {/* <td>{item.is_enabled ? "啟用" : "未啟用"}</td> */}
                     <td>
                       <button
                         className="btn btn-primary"
@@ -157,7 +183,7 @@ export default function ProductList() {
                     <td>
                       <button
                         className="me-1 btn btn-warning"
-                        onClick={() => openModal("update", item)}
+                        onClick={() => openModal("edit", item)}
                       >
                         編輯
                       </button>
@@ -183,7 +209,7 @@ export default function ProductList() {
               type="button"
               className="btn btn-info"
               onClick={() =>
-                openModal("", {
+                openModal("update", {
                   title: "",
                   category: "",
                   origin_price: 0,
@@ -194,7 +220,6 @@ export default function ProductList() {
                   is_enabled: 1,
                   imageUrl: "",
                   imagesUrl: ["", "", "", "", ""],
-                  test: "test",
                 })
               }
             >
@@ -205,7 +230,7 @@ export default function ProductList() {
             closeModal={closeModal}
             state={modalState}
             tempProduct={tempProduct}
-            renderProducts={renderProducts}
+            getProducts={getProducts}
           />
         </div>
         {tempProduct.title ? (
@@ -239,7 +264,7 @@ export default function ProductList() {
                     <img
                       key={index}
                       src={url || null}
-                      className="images"
+                      className="images me-3 mt-3"
                       alt="副圖"
                     />
                   ))}

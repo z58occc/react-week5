@@ -7,10 +7,14 @@ import Cart from "./pages/Cart";
 import Login from "./pages/Login";
 import Order from "./pages/Order";
 import ProductList from "./pages/ProductList";
+import { useEffect, useRef } from "react";
+import { Toast } from "bootstrap";
+import MessageToast from "./components/MessageToast";
 
 function App() {
   return (
     <>
+      <MessageToast  />
       <Nav />
       <div className="container">
         <Routes>

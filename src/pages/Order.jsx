@@ -1,7 +1,12 @@
 import axios from "axios";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { showToast } from "../slice/messageSlice";
+import { useNavigate } from "react-router";
 
 export default function Order() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const api = import.meta.env.VITE_APP_API_BASE;
   const path = import.meta.env.VITE_APP_API_PATH;
   const {
@@ -23,9 +28,20 @@ export default function Order() {
     };
     try {
       const res = await axios.post(`${api}/v2/api/${path}/order`, newData);
-      alert("訂單已成功建立");
+      dispatch(
+        showToast({
+          message: "訂單已成功建立",
+          bg: "info",
+        }),
+      );
+      navigate("/products");
     } catch (error) {
-      alert("訂單建立失敗");
+      dispatch(
+        showToast({
+          message: "訂單建立失敗",
+          bg: "danger",
+        }),
+      );
     }
   }
 
@@ -34,6 +50,7 @@ export default function Order() {
       <div className="d-flex justify-content-center">
         <form onSubmit={handleSubmit(onSubmit)}>
           <input
+            className="form-control"
             type="text"
             placeholder="姓名"
             {...register("name", { required: true })}
@@ -41,6 +58,7 @@ export default function Order() {
           {errors.name && <p className="text-danger">姓名是必填</p>}
           <br />
           <input
+            className="form-control"
             type="email"
             placeholder="email"
             {...register("email", { required: true })}
@@ -49,6 +67,7 @@ export default function Order() {
 
           <br />
           <input
+            className="form-control"
             type="tel"
             placeholder="電話"
             {...register("tel", { required: true, min: 8 })}
@@ -65,6 +84,7 @@ export default function Order() {
 
           <br />
           <input
+            className="form-control"
             type="text"
             placeholder="地址"
             {...register("address", { required: true })}
@@ -72,9 +92,14 @@ export default function Order() {
           {errors.address && <p className="text-danger">地址是必填</p>}
 
           <br />
-          <input type="text" placeholder="留言" {...register("message")} />
+          <input
+            className="form-control"
+            type="text"
+            placeholder="留言"
+            {...register("message")}
+          />
           <br />
-          <input className="mt-3" type="submit" />
+          <input className="mt-3 btn btn-dark"  type="submit" />
         </form>
       </div>
     </>

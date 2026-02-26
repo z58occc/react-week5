@@ -2,6 +2,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import "../stylesheet/productDetail.scss";
+import { useDispatch } from "react-redux";
+import { showToast } from "../slice/messageSlice";
 
 export default function ProductDetails() {
   const api = import.meta.env.VITE_APP_API_BASE;
@@ -9,6 +11,7 @@ export default function ProductDetails() {
   const param = useParams();
   const { id } = param;
   const [product, setProduct] = useState({});
+  const dispatch = useDispatch();
   const item = {
     product_id: id,
     qty: 1,
@@ -18,7 +21,12 @@ export default function ProductDetails() {
     const res = await axios.post(`${api}/v2/api/${path}/cart`, {
       data: item,
     });
-    alert("已成功加入")
+    dispatch(
+      showToast({
+        message: "已成功加入購物車",
+        bg: "success",
+      }),
+    );
   }
 
   useEffect(() => {
@@ -76,7 +84,9 @@ export default function ProductDetails() {
             </div>
 
             <div className="actions">
-              <button onClick={addCart} className="add-cart">加入購物車</button>
+              <button onClick={addCart} className="add-cart">
+                加入購物車
+              </button>
               <button className="buy-now">立即購買</button>
             </div>
           </div>

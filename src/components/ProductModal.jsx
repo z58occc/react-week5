@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { showToast } from "../slice/messageSlice";
+import "../stylesheet/productList.scss";
 
 export default function ProductModal({
   tempProduct,
   state,
   closeModal,
-  renderProducts,
+  getProducts,
 }) {
+  const dispatch = useDispatch();
   const api = import.meta.env.VITE_APP_API_BASE;
   const path = import.meta.env.VITE_APP_API_PATH;
   const imgRef = useRef(null);
@@ -30,14 +34,18 @@ export default function ProductModal({
     ?.split("=")[1];
 
   async function upload(file) {
-    if (!file) return;
-    const formData = new FormData();
-    formData.append("file-to-upload", file);
-    const uploadRes = await axios.post(
-      `${api}/v2/api/${path}/admin/upload`,
-      formData,
-    );
-    setUploadImg(uploadRes.data.imageUrl);
+    try {
+      if (!file) return;
+      const formData = new FormData();
+      formData.append("file-to-upload", file);
+      const uploadRes = await axios.post(
+        `${api}/v2/api/${path}/admin/upload`,
+        formData,
+      );
+      setUploadImg(uploadRes.data.imageUrl);
+    } catch (error) {
+      alert(error);
+    }
   }
 
   async function handleSubmit(e) {
@@ -45,19 +53,31 @@ export default function ProductModal({
     e.preventDefault();
     try {
       if (state === "update") {
+        const res = await axios.post(`${api}/v2/api/${path}/admin/product`, {
+          data: newProduct,
+        });
+        dispatch(
+          showToast({
+            message: "新增商品成功",
+            bg: "success",
+          }),
+        );
+      } else {
         const { id } = tempProduct;
         const res = await axios.put(
           `${api}/v2/api/${path}/admin/product/${id}`,
           { data: newProduct },
         );
-      } else {
-        const res = await axios.post(`${api}/v2/api/${path}/admin/product`, {
-          data: newProduct,
-        });
+        dispatch(
+          showToast({
+            message: "編輯商品成功",
+            bg: "warning",
+          }),
+        );
       }
 
       closeModal();
-      renderProducts();
+      getProducts();
     } catch (error) {
       alert(JSON.stringify(error.response.data.message));
     }
@@ -319,7 +339,7 @@ export default function ProductModal({
                             ref={(el) => (imgsRef.current[n] = el)}
                             alt="副圖"
                             src={newProduct?.imagesUrl[n] || null}
-                            className={newProduct?.imagesUrl[n] ? "" : "d-none"}
+                            className={`${newProduct?.imagesUrl[n] ? "" : "d-none"} images`}
                           />
                         </div>
                       );

@@ -1,5 +1,3 @@
-import { Audio } from "react-loader-spinner";
-
 export default function Home() {
   return (
     <>

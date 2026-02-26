@@ -3,22 +3,30 @@ import { useEffect, useState } from "react";
 import "../stylesheet/cart.scss";
 import { useNavigate } from "react-router";
 import Spinner from "../components/Spinner";
+import { useDispatch } from "react-redux";
+import { showToast } from "../slice/messageSlice";
 
 export default function Cart() {
+  const dispatch = useDispatch();
   const [cartItems, setCartItems] = useState(null);
   const api = import.meta.env.VITE_APP_API_BASE;
   const path = import.meta.env.VITE_APP_API_PATH;
   const navigate = useNavigate();
   async function getCart() {
     const res = await axios.get(`${api}/v2/api/${path}/cart`);
-    console.log(res);
     setCartItems(res.data.data);
   }
   useEffect(() => {
     getCart();
   }, []);
   async function handleDeleteItem(id) {
-    const res = axios.delete(`${api}/v2/api/${path}/cart/${id}`);
+    const res = await axios.delete(`${api}/v2/api/${path}/cart/${id}`);
+    dispatch(
+      showToast({
+        message: "已成功從購物車中刪除",
+        bg: "danger",
+      }),
+    );
     getCart();
   }
   function handleOrder() {
@@ -30,7 +38,7 @@ export default function Cart() {
         <Spinner />
       ) : (
         <div className="container">
-          {cartItems?.carts.length === 0 ? (
+          {cartItems?.carts?.length === 0 ? (
             <h1>目前購物車是空的</h1>
           ) : (
             <>
