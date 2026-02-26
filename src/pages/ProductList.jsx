@@ -5,6 +5,7 @@ import ProductModal from "../components/ProductModal";
 import { Modal } from "bootstrap";
 import Swal from "sweetalert2";
 import Pagination from "../components/Pagination";
+import "../stylesheet/productList.scss";
 
 
 export default function ProductList() {
